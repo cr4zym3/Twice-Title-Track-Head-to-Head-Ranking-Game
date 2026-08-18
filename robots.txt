@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://cr4zym3.github.io/Twice=Title=Track-Head-to-Head-Ranking-Game/sitemap.xml
+Sitemap: https://cr4zym3.github.io/Twice-Title-Track-Head-to-Head-Ranking-Game/sitemap.xml
