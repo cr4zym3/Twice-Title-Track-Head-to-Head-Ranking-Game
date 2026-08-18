@@ -1081,5 +1081,23 @@ th:nth-child(2) {
         font-size:
             14px;
     }
+/* CREATOR CREDIT */
 
+.creator-credit {
+    text-align: center;
+    color: var(--secondary);
+    font-size: 13px;
+    margin: 10px 0 20px;
+}
+
+.creator-credit a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.creator-credit a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
 }
