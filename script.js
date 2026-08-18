@@ -444,7 +444,7 @@ function setCard(
 
 
     image.src =
-        "images/" +
+        "Images/" +
         IMAGE_FILES[
             song.name
         ];
@@ -811,7 +811,7 @@ function showRanking() {
             </div>
 
             <img
-                src="images/${IMAGE_FILES[song.name]}"
+                src="Images/${IMAGE_FILES[song.name]}"
                 alt="${song.name}"
             >
 
@@ -1005,6 +1005,8 @@ document.getElementById(
 );
 
 
-/* START */
+/* =========================================
+   START
+========================================= */
 
 restart();
