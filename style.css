@@ -1,0 +1,692 @@
+* {
+    box-sizing: border-box;
+}
+
+
+:root {
+
+    --background: #0d0f14;
+
+    --card: #171a21;
+
+    --hover: #252a34;
+
+    --panel: #14171d;
+
+    --text: #ffffff;
+
+    --secondary: #9ca3af;
+
+    --accent: #ff4fa3;
+
+    --accent-hover: #ff6db5;
+
+    --green: #34d399;
+
+    --gold: #fbbf24;
+}
+
+
+body {
+
+    margin: 0;
+
+    min-height: 100vh;
+
+    background: var(--background);
+
+    color: var(--text);
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+
+/* HEADER */
+
+header {
+
+    text-align: center;
+
+    padding:
+        30px
+        20px
+        15px;
+}
+
+
+header h1 {
+
+    margin: 0;
+
+    font-size:
+        clamp(
+            26px,
+            4vw,
+            38px
+        );
+}
+
+
+header p {
+
+    color: var(--secondary);
+
+    margin-top: 8px;
+}
+
+
+/* STATS */
+
+.stats {
+
+    margin:
+        0
+        3%;
+
+    padding:
+        14px
+        24px;
+
+    background:
+        var(--panel);
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 28px;
+
+    border-radius: 8px;
+}
+
+
+.stats span {
+
+    color:
+        var(--secondary);
+}
+
+
+#status {
+
+    margin-left: auto;
+
+    color:
+        var(--accent);
+}
+
+
+/* PROGRESS */
+
+.progress-container {
+
+    margin:
+        12px
+        3%
+        0;
+}
+
+
+.progress-bar {
+
+    height: 7px;
+
+    background:
+        #252a34;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+}
+
+
+#progress {
+
+    height: 100%;
+
+    width: 0%;
+
+    background:
+        var(--accent);
+
+    transition:
+        width
+        .25s;
+}
+
+
+/* GAME */
+
+main {
+
+    display: flex;
+
+    align-items: stretch;
+
+    gap: 18px;
+
+    margin:
+        22px
+        3%;
+
+    min-height:
+        470px;
+}
+
+
+.song-card {
+
+    flex: 1;
+
+    border:
+        1px solid
+        #252a34;
+
+    border-radius: 8px;
+
+    background:
+        var(--card);
+
+    color:
+        var(--text);
+
+    padding:
+        25px;
+
+    cursor:
+        pointer;
+
+    transition:
+        transform
+        .15s,
+        background
+        .15s,
+        border-color
+        .15s;
+}
+
+
+.song-card:hover {
+
+    background:
+        var(--hover);
+
+    transform:
+        translateY(-3px);
+
+    border-color:
+        var(--accent);
+}
+
+
+.song-card img {
+
+    width:
+        min(
+            300px,
+            75%
+        );
+
+    aspect-ratio: 1;
+
+    object-fit:
+        cover;
+
+    display:
+        block;
+
+    margin:
+        0 auto
+        14px;
+
+    background:
+        #111318;
+
+    border-radius:
+        4px;
+}
+
+
+.song-card h2 {
+
+    margin:
+        5px
+        auto
+        10px;
+
+    font-size:
+        clamp(
+            20px,
+            2.5vw,
+            28px
+        );
+}
+
+
+.rating {
+
+    color:
+        var(--gold);
+
+    font-weight:
+        bold;
+}
+
+
+.record {
+
+    color:
+        var(--secondary);
+
+    margin-top:
+        7px;
+
+    font-size:
+        14px;
+}
+
+
+/* VS */
+
+.vs {
+
+    width:
+        55px;
+
+    display:
+        grid;
+
+    place-items:
+        center;
+
+    color:
+        #6b7280;
+
+    font-size:
+        20px;
+
+    font-weight:
+        bold;
+}
+
+
+/* FOOTER */
+
+footer {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    margin:
+        0
+        3%
+        25px;
+
+    color:
+        var(--secondary);
+}
+
+
+footer button {
+
+    border:
+        0;
+
+    border-radius:
+        6px;
+
+    padding:
+        11px
+        20px;
+
+    color:
+        var(--text);
+
+    font-weight:
+        bold;
+
+    cursor:
+        pointer;
+}
+
+
+.primary {
+
+    background:
+        var(--accent);
+}
+
+
+.primary:hover {
+
+    background:
+        var(--accent-hover);
+}
+
+
+.secondary {
+
+    background:
+        #292e38;
+
+    margin-right:
+        8px;
+}
+
+
+.secondary:hover {
+
+    background:
+        #3a404d;
+}
+
+
+/* RANKING MODAL */
+
+.modal {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    background:
+        rgba(
+            0,
+            0,
+            0,
+            .78
+        );
+
+    display:
+        grid;
+
+    place-items:
+        center;
+
+    padding:
+        20px;
+
+    z-index:
+        10;
+}
+
+
+.hidden {
+
+    display:
+        none;
+}
+
+
+.modal-content {
+
+    position:
+        relative;
+
+    width:
+        min(
+            1050px,
+            100%
+        );
+
+    max-height:
+        92vh;
+
+    overflow:
+        auto;
+
+    background:
+        var(--background);
+
+    border-radius:
+        12px;
+
+    padding:
+        28px;
+}
+
+
+.modal-content h1 {
+
+    text-align:
+        center;
+}
+
+
+.modal-content > p {
+
+    text-align:
+        center;
+
+    color:
+        var(--secondary);
+}
+
+
+.close {
+
+    position:
+        absolute;
+
+    right:
+        16px;
+
+    top:
+        12px;
+
+    border:
+        0;
+
+    background:
+        transparent;
+
+    color:
+        var(--secondary);
+
+    font-size:
+        32px;
+
+    cursor:
+        pointer;
+}
+
+
+/* PODIUM */
+
+.podium {
+
+    display:
+        flex;
+
+    gap:
+        12px;
+
+    margin:
+        20px
+        0;
+}
+
+
+.podium-card {
+
+    flex:
+        1;
+
+    background:
+        var(--card);
+
+    text-align:
+        center;
+
+    padding:
+        18px;
+
+    border-radius:
+        8px;
+}
+
+
+.podium-card img {
+
+    width:
+        110px;
+
+    height:
+        110px;
+
+    object-fit:
+        cover;
+}
+
+
+.podium-card .medal {
+
+    font-size:
+        30px;
+}
+
+
+.podium-card h3 {
+
+    margin:
+        8px
+        0
+        4px;
+}
+
+
+/* TABLE */
+
+.table-wrapper {
+
+    overflow-x:
+        auto;
+}
+
+
+table {
+
+    width:
+        100%;
+
+    border-collapse:
+        collapse;
+
+    background:
+        var(--card);
+}
+
+
+th,
+td {
+
+    padding:
+        12px;
+
+    text-align:
+        center;
+
+    border-bottom:
+        1px solid
+        #252a34;
+}
+
+
+th {
+
+    background:
+        #242832;
+}
+
+
+td:nth-child(2),
+th:nth-child(2) {
+
+    text-align:
+        left;
+}
+
+
+/* MOBILE */
+
+@media (
+    max-width:
+    750px
+) {
+
+    .stats {
+
+        flex-wrap:
+            wrap;
+
+        gap:
+            10px
+            18px;
+    }
+
+
+    #status {
+
+        margin-left:
+            0;
+
+        width:
+            100%;
+    }
+
+
+    main {
+
+        flex-direction:
+            column;
+    }
+
+
+    .vs {
+
+        width:
+            auto;
+
+        height:
+            30px;
+    }
+
+
+    .song-card img {
+
+        width:
+            min(
+                260px,
+                80%
+            );
+    }
+
+
+    footer {
+
+        flex-direction:
+            column;
+
+        gap:
+            15px;
+    }
+
+
+    .podium {
+
+        flex-direction:
+            column;
+    }
+
+}
