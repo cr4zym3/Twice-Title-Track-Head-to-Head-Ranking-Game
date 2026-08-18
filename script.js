@@ -1,47 +1,26 @@
 const IMAGE_FILES = {
 
     "Like OOH-AHH": "like_ooh_ahh.jpg",
-
     "Cheer Up": "cheer_up.jpg",
-
     "TT": "tt.jpg",
-
     "Knock Knock": "knock_knock.jpg",
-
     "Signal": "signal.jpg",
-
     "Likey": "likey.jpg",
-
     "Heart Shaker": "heart_shaker.jpg",
-
     "What Is Love?": "what_is_love.jpg",
-
     "Dance the Night Away": "dance_the_night_away.jpg",
-
     "Yes or Yes": "yes_or_yes.jpg",
-
     "Fancy": "fancy.jpg",
-
     "Feel Special": "feel_special.jpg",
-
     "More & More": "more_and_more.jpg",
-
     "I Can't Stop Me": "i_cant_stop_me.jpg",
-
     "Alcohol-Free": "alcohol_free.jpg",
-
     "Scientist": "scientist.jpg",
-
     "Talk That Talk": "talk_that_talk.jpg",
-
     "Set Me Free": "set_me_free.jpg",
-
     "One Spark": "one_spark.jpg",
-
     "Strategy": "strategy.jpg",
-
     "This is For": "this_is_for.jpg",
-
     "ME+YOU": "me_you.jpg"
 
 };
@@ -51,25 +30,99 @@ const SONG_NAMES =
     Object.keys(IMAGE_FILES);
 
 
+/* =========================================
+   ELO SETTINGS
+========================================= */
+
 const K_FACTOR = 32;
 
-const RATING_GAP = 40;
+
+/* =========================================
+   STOPPING SETTINGS
+========================================= */
+
+/*
+ * The game cannot finish before this.
+ *
+ * 90 gives the game enough information
+ * before it is allowed to stop.
+ */
+const MIN_COMPARISONS = 90;
 
 
+/*
+ * Hard maximum.
+ *
+ * 22 songs = 231 unique pairs.
+ */
 const MAX_COMPARISONS =
     SONG_NAMES.length *
     (SONG_NAMES.length - 1) /
     2;
 
 
-const MIN_COMPARISONS =
-    Math.max(
-        10,
-        Math.floor(
-            MAX_COMPARISONS * 0.35
-        )
-    );
+/*
+ * Every song must be compared at least
+ * this many times before finishing.
+ */
+const MIN_SONG_COMPARISONS = 4;
 
+
+/*
+ * We check the ranking every 5 comparisons.
+ */
+const STABILITY_INTERVAL = 5;
+
+
+/*
+ * How much the ranking can move between
+ * stability checks.
+ *
+ * This is intentionally much more relaxed
+ * than the old value of 6.
+ */
+const MAX_POSITION_CHANGE = 14;
+
+
+/*
+ * Number of consecutive stable checks
+ * needed before the ranking can finish.
+ */
+const STABILITY_CHECKS = 2;
+
+
+/*
+ * Probability adjustment.
+ *
+ * After the minimum is reached, a stable
+ * ranking has a chance to finish.
+ *
+ * This prevents every game from ending
+ * at exactly the same number.
+ */
+const EARLY_FINISH_CHANCE = 0.65;
+
+
+/*
+ * Additional safety threshold.
+ *
+ * Once the game reaches this many
+ * comparisons, it becomes increasingly
+ * willing to finish.
+ */
+const SOFT_FINISH_POINT = 135;
+
+
+/*
+ * After this point, if the ranking is
+ * reasonably stable, finish automatically.
+ */
+const STRONG_FINISH_POINT = 165;
+
+
+/* =========================================
+   GAME STATE
+========================================= */
 
 let songs = [];
 
@@ -82,6 +135,15 @@ let songA = null;
 let songB = null;
 
 let finished = false;
+
+
+/*
+ * Stores previous rankings for the
+ * stability system.
+ */
+let previousRanking = null;
+
+let stableChecks = 0;
 
 
 /* =========================================
@@ -234,8 +296,8 @@ function choosePair() {
 
         for (
             let j = i + 1;
-            j < ranking.length;
-            j++
+        j < ranking.length;
+        j++
         ) {
 
             const x =
@@ -252,6 +314,9 @@ function choosePair() {
                 );
 
 
+            /*
+             * Never repeat a matchup.
+             */
             if (
                 comparedPairs.has(
                     pair
@@ -270,6 +335,10 @@ function choosePair() {
                 );
 
 
+            /*
+             * Smaller rating differences
+             * are more useful.
+             */
             const usefulness =
                 1 /
                 (
@@ -305,6 +374,9 @@ function choosePair() {
     }
 
 
+    /*
+     * Sort from most useful to least useful.
+     */
     possiblePairs.sort(
         (a, b) =>
             b.usefulness -
@@ -312,11 +384,18 @@ function choosePair() {
     );
 
 
+    /*
+     * Choose randomly from the 20 most
+     * useful available matchups.
+     *
+     * This prevents the same exact sequence
+     * every time.
+     */
     const topChoices =
         possiblePairs.slice(
             0,
             Math.min(
-                8,
+                20,
                 possiblePairs.length
             )
         );
@@ -340,43 +419,18 @@ function choosePair() {
 
 
 /* =========================================
-   RELIABILITY
+   MINIMUM COMPARISON CHECK
 ========================================= */
 
-function rankingIsReliable() {
-
-    const ranking =
-        getRanking();
-
+function everySongHasEnoughComparisons() {
 
     for (
         const song of songs
     ) {
 
         if (
-            song.comparisons < 5
-        ) {
-
-            return false;
-
-        }
-
-    }
-
-
-    for (
-        let i = 0;
-        i < ranking.length - 1;
-        i++
-    ) {
-
-        const gap =
-            ranking[i].rating -
-            ranking[i + 1].rating;
-
-
-        if (
-            gap < RATING_GAP
+            song.comparisons <
+            MIN_SONG_COMPARISONS
         ) {
 
             return false;
@@ -392,11 +446,157 @@ function rankingIsReliable() {
 
 
 /* =========================================
+   RANKING ORDER
+========================================= */
+
+function getRankingOrder() {
+
+    return getRanking().map(
+        song => song.name
+    );
+
+}
+
+
+/* =========================================
+   RANKING MOVEMENT
+========================================= */
+
+function rankingPositionChange(
+    oldRanking,
+    newRanking
+) {
+
+    if (!oldRanking) {
+
+        return Infinity;
+
+    }
+
+
+    let totalChange = 0;
+
+
+    for (
+        let i = 0;
+        i < newRanking.length;
+        i++
+    ) {
+
+        const song =
+            newRanking[i];
+
+
+        const oldPosition =
+            oldRanking.indexOf(
+                song
+            );
+
+
+        const newPosition =
+            i;
+
+
+        totalChange +=
+            Math.abs(
+                oldPosition -
+                newPosition
+            );
+
+    }
+
+
+    return totalChange;
+
+}
+
+
+/* =========================================
+   STABILITY CHECK
+========================================= */
+
+function rankingIsStable() {
+
+    const currentRanking =
+        getRankingOrder();
+
+
+    /*
+     * First check establishes the baseline.
+     */
+    if (!previousRanking) {
+
+        previousRanking =
+            currentRanking;
+
+        stableChecks = 0;
+
+        return false;
+
+    }
+
+
+    const positionChange =
+        rankingPositionChange(
+            previousRanking,
+            currentRanking
+        );
+
+
+    /*
+     * Ranking has moved only a moderate
+     * amount.
+     */
+    if (
+        positionChange <=
+        MAX_POSITION_CHANGE
+    ) {
+
+        stableChecks++;
+
+    }
+
+    else {
+
+        stableChecks = 0;
+
+    }
+
+
+    previousRanking =
+        currentRanking;
+
+
+    return (
+        stableChecks >=
+        STABILITY_CHECKS
+    );
+
+}
+
+
+/* =========================================
    STOP CHECK
 ========================================= */
 
 function shouldStop() {
 
+    /*
+     * Never finish before the minimum.
+     */
+    if (
+        comparisonNumber <
+        MIN_COMPARISONS
+    ) {
+
+        return false;
+
+    }
+
+
+    /*
+     * Always finish at the hard maximum.
+     */
     if (
         comparisonNumber >=
         MAX_COMPARISONS
@@ -407,23 +607,120 @@ function shouldStop() {
     }
 
 
+    /*
+     * Every song needs enough exposure.
+     */
     if (
-        comparisonNumber >=
-        MIN_COMPARISONS
+        !everySongHasEnoughComparisons()
     ) {
 
-        if (
-            rankingIsReliable()
-        ) {
-
-            return true;
-
-        }
+        return false;
 
     }
 
 
-    return false;
+    /*
+     * Only check stability every
+     * STABILITY_INTERVAL comparisons.
+     */
+    if (
+        comparisonNumber %
+        STABILITY_INTERVAL !==
+        0
+    ) {
+
+        return false;
+
+    }
+
+
+    const stable =
+        rankingIsStable();
+
+
+    /*
+     * If the ranking is not reasonably
+     * stable, keep going.
+     */
+    if (!stable) {
+
+        return false;
+
+    }
+
+
+    /* =====================================
+       90-135 RANGE
+    ===================================== */
+
+    /*
+     * Between 90 and 135 comparisons,
+     * stable rankings have a 65% chance
+     * of finishing.
+     *
+     * Otherwise the game continues.
+     */
+    if (
+        comparisonNumber <
+        SOFT_FINISH_POINT
+    ) {
+
+        return (
+            Math.random() <
+            EARLY_FINISH_CHANCE
+        );
+
+    }
+
+
+    /* =====================================
+       135-165 RANGE
+    ===================================== */
+
+    /*
+     * After 135 comparisons, make finishing
+     * increasingly likely.
+     */
+    if (
+        comparisonNumber <
+        STRONG_FINISH_POINT
+    ) {
+
+        const progress =
+            (
+                comparisonNumber -
+                SOFT_FINISH_POINT
+            ) /
+            (
+                STRONG_FINISH_POINT -
+                SOFT_FINISH_POINT
+            );
+
+
+        /*
+         * Probability rises from 75%
+         * to 100%.
+         */
+        const finishChance =
+            0.75 +
+            (
+                progress *
+                0.25
+            );
+
+
+        return (
+            Math.random() <
+            finishChance
+        );
+
+    }
+
+
+    /*
+     * At 165+, a stable ranking finishes.
+     */
+    return true;
 
 }
 
@@ -925,6 +1222,14 @@ function restart() {
 
     finished =
         false;
+
+
+    previousRanking =
+        null;
+
+
+    stableChecks =
+        0;
 
 
     document.getElementById(
