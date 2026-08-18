@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TWICE Title Track Ranker 🍭</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>TWICE Title Track Ranker 🍭</h1>
+
+    <p>
+        Choose the song you prefer — every choice changes the rankings
+    </p>
+</header>
+
+
+<section class="stats">
+
+    <strong id="comparison">
+        Comparisons: 0
+    </strong>
+
+    <span id="minimum">
+        Minimum: 0
+    </span>
+
+    <span id="maximum">
+        Maximum: 231
+    </span>
+
+    <strong id="status">
+        Ranking in progress
+    </strong>
+
+</section>
+
+
+<div class="progress-container">
+
+    <div class="progress-bar">
+
+        <div id="progress"></div>
+
+    </div>
+
+</div>
+
+
+<main>
+
+    <!-- SONG A -->
+
+    <button
+        class="song-card"
+        id="cardA"
+    >
+
+        <img
+            id="imageA"
+            alt=""
+        >
+
+        <h2 id="nameA"></h2>
+
+        <div
+            class="rating"
+            id="ratingA"
+        ></div>
+
+        <div
+            class="record"
+            id="recordA"
+        ></div>
+
+    </button>
+
+
+    <div class="vs">
+        VS
+    </div>
+
+
+    <!-- SONG B -->
+
+    <button
+        class="song-card"
+        id="cardB"
+    >
+
+        <img
+            id="imageB"
+            alt=""
+        >
+
+        <h2 id="nameB"></h2>
+
+        <div
+            class="rating"
+            id="ratingB"
+        ></div>
+
+        <div
+            class="record"
+            id="recordB"
+        ></div>
+
+    </button>
+
+</main>
+
+
+<footer>
+
+    <span id="nextLabel">
+        Choose your favorite
+    </span>
+
+
+    <div>
+
+        <button
+            class="secondary"
+            id="restart"
+        >
+            ↻ Restart
+        </button>
+
+
+        <button
+            class="primary"
+            id="rankings"
+        >
+            🏆 View Rankings
+        </button>
+
+    </div>
+
+</footer>
+
+
+<!-- RANKINGS WINDOW -->
+
+<div
+    class="modal hidden"
+    id="rankingModal"
+>
+
+    <div class="modal-content">
+
+        <button
+            class="close"
+            id="closeModal"
+        >
+            ×
+        </button>
+
+
+        <h1>
+            🏆 TWICE SONG RANKINGS
+        </h1>
+
+
+        <p id="rankingSubtitle"></p>
+
+
+        <div
+            class="podium"
+            id="podium"
+        ></div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>#</th>
+
+                        <th>Song</th>
+
+                        <th>Rating</th>
+
+                        <th>Wins</th>
+
+                        <th>Losses</th>
+
+                        <th>Comparisons</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody
+                    id="rankingTable"
+                ></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
